@@ -81,3 +81,43 @@ func ifaceFeaturesIoctl() (uint16, error) {
 
 	return features, nil
 }
+
+func ifaceLinkUpIoctl(req *ifReq) error {
+	s, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, syscall.IPPROTO_IP)
+	if err != nil {
+		return os.NewSyscallError("socket failed", err)
+	}
+	fd := uintptr(s)
+
+	if err := ioctl(fd, uintptr(syscall.SIOCGIFFLAGS), uintptr(unsafe.Pointer(req))); err != nil {
+		return os.NewSyscallError("ioctl: SIOCGIFFLAGS", err)
+	}
+
+	req.Flags |= syscall.IFF_UP
+
+	if err := ioctl(fd, uintptr(syscall.SIOCSIFFLAGS), uintptr(unsafe.Pointer(req))); err != nil {
+		return os.NewSyscallError("ioctl: SIOCSIFFLAGS", err)
+	}
+
+	return nil
+}
+
+func ifaceLinkDownIoctl(req *ifReq) error {
+	s, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, syscall.IPPROTO_IP)
+	if err != nil {
+		return os.NewSyscallError("socket failed", err)
+	}
+	fd := uintptr(s)
+
+	if err := ioctl(fd, uintptr(syscall.SIOCGIFFLAGS), uintptr(unsafe.Pointer(req))); err != nil {
+		return os.NewSyscallError("ioctl: SIOCGIFFLAGS", err)
+	}
+
+	req.Flags = req.Flags &^ syscall.IFF_UP
+
+	if err := ioctl(fd, uintptr(syscall.SIOCSIFFLAGS), uintptr(unsafe.Pointer(req))); err != nil {
+		return os.NewSyscallError("ioctl: SIOCSIFFLAGS", err)
+	}
+
+	return nil
+}
