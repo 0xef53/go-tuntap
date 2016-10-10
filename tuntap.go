@@ -2,7 +2,7 @@ package tuntap
 
 import "syscall"
 
-// AddTapInterface creates and configures a new tap interface of the given name and IFF flags.
+// AddTapInterface creates and configures a new tap interface with the given name and IFF flags.
 //
 // ifName should not exceed 16 bytes.
 //
@@ -20,7 +20,7 @@ func AddTapInterface(ifName string, uid, gid int, flags uint16, persist bool) er
 	return ifaceAddIoctl(&req, uid, gid, persist)
 }
 
-// DelTapInterface destroys an existing tap interface of the given name.
+// DelTapInterface destroys an existing tap interface.
 //
 // This is identical to running:  ip tuntap del mode tap dev $ifName
 //
